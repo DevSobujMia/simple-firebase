@@ -1,52 +1,74 @@
-import { GoogleAuthProvider, getAuth, signInWithPopup, signOut } from "firebase/auth";
+import {
+    GithubAuthProvider,
+    GoogleAuthProvider,
+    getAuth,
+    signInWithPopup,
+    signOut,
+} from "firebase/auth";
 import { useState } from "react";
 import app from "../firebase/firebase.init";
 
 const Login = () => {
-    const [user, setUser] = useState(null);
-    const auth = getAuth(app);
-    console.log(app);
-    const provider = new GoogleAuthProvider();
+  const [user, setUser] = useState(null);
 
-    const handleGoogleSignIn = () => {
-        signInWithPopup(auth, provider)
-        .then(result => {
-            const loggedInUser = result.user;
-            console.log(loggedInUser);
-            setUser(loggedInUser);
-        })
-        .catch(error => {
-            console.log('error', error.message);
-        })
-    }
+  const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
+  const githubProvider = new GithubAuthProvider();
 
-    const handleSignOut = () => {
-        signOut(auth)
-        .then(result => {
-            setUser(null);
+  const handleGoogleSignIn = () => {
+    signInWithPopup(auth, googleProvider)
+      .then(result => {
+        const loggedInUser = result.user;
+        console.log(loggedInUser);
+        setUser(loggedInUser);
+      })
+      .catch(error => {
+        console.log("error", error.message);
+      });
+  };
 
-        })
-        .catch(error => {
-            console.log(error);
-        })
-    }
-    
-    return (
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(result => {
+        console.log(result);
+        setUser(null);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  const handleGithubSignIn = () => {
+    signInWithPopup(auth, githubProvider)
+    .then(result => {
+        const loggedUser = result.user;
+        console.log(loggedUser);
+        setUser(loggedUser);
+    })
+    .catch(error => {
+        console.log(error);
+    });
+  }
+
+  return (
+    <div>
+      {user ? 
+        <button onClick={handleSignOut}>Sign Out</button> :
+ 
+        <>
+          <button onClick={handleGoogleSignIn}>Google Login</button>
+          <button onClick={handleGithubSignIn}>GitHub Login</button>
+        </>
+      }
+      {user && 
         <div>
-            {
-                user ? 
-                <button onClick={handleSignOut}>Sign Out</button> :
-                <button onClick={handleGoogleSignIn}>Google Login</button>
-            }
-            {
-                user && <div>
-                    <h3>User: {user.displayName}</h3>
-                    <p>{user.email}</p>
-                    <img src={user.photoURL} alt="" />
-                </div>
-            }
+          <h3>User: {user.displayName}</h3>
+          <p>{user.email}</p>
+          <img src={user.photoURL} alt="" />
         </div>
-    );
+      }
+    </div>
+  );
 };
 
 export default Login;
